@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_weight="1">
+
+    <TextView
+        android:id="@+id/round_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginBottom="10dp"
+        android:text="Нет ограничения на время" />
+
+    <ListView
+        android:id="@+id/list_var"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginBottom="10dp"
+        >
+
+    </ListView>
+
+    <TextView
+        android:id="@+id/isLeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:text="Вы являетесь лидером"
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/cur_action"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:lines="3"
+        android:maxLines="3"
+        android:layout_marginStart="10dp"
+        android:scrollbars = "vertical"
+        android:textSize="20sp"
+        android:layout_marginBottom="5dp"
+        android:text="TextView" />
+
+    <TextView
+        android:id="@+id/log_journal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:lines="10"
+        android:maxLines="10"
+        android:layout_marginStart="10dp"
+        android:scrollbars = "vertical"
+        android:textSize="20sp"
+        android:text="TextView" />
+</LinearLayout>

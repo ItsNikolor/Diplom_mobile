@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_weight="100">
+
+    <TextView
+        android:id="@+id/room_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textSize="20sp"
+        android:text="Название комнаты" />
+
+    <TextView
+        android:id="@+id/scenario_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textSize="20sp"
+        android:text="Название сценария" />
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/edit_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="text"
+        android:hint="Введите ваше имя" />
+
+    <Spinner
+        android:id="@+id/spinner"
+        android:layout_width="match_parent"
+        android:layout_height="50sp"/>
+
+    <TextView
+        android:id="@+id/role_descr"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:maxLines="4"
+        android:lines="4"
+
+        android:layout_marginLeft="10dp"
+        android:scrollbars = "vertical"
+        android:text="Роль не выбрана" />
+
+    <ListView
+        android:id="@+id/players_list"
+        android:layout_width="match_parent"
+        android:layout_marginTop="25dp"
+        android:layout_height="0dp"
+        android:layout_weight="90">
+
+    </ListView>
+
+    <Button
+        android:id="@+id/send_player"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Отправить" />
+
+    <Button
+        android:id="@+id/start_game"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Начать игру" />
+</LinearLayout>
