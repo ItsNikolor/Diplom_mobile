@@ -49,6 +49,8 @@ public class FragmentTabImage extends Fragment {
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if(GameInfo.game.game_ended) return;
+
                     GameInfo game = GameInfo.game;
                     image.visibility = true;//Это ссылка
                     GameInfo.game.tabs.get(image.tab_id).add_visible();

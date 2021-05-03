@@ -62,6 +62,11 @@ public class ConfirmAction extends AppCompatActivity {
         findViewById(R.id.send_action).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (GameInfo.game.game_ended){
+                    Intent intent = new Intent(v.getContext(),GameStart.class);
+                    startActivity(intent);
+                }
+
                 if(ans.length>0&&cur_ans.equals("")){
                     Toast.makeText(v.getContext(),"Выберите вариант",Toast.LENGTH_SHORT).show();
                     return;
@@ -75,6 +80,11 @@ public class ConfirmAction extends AppCompatActivity {
             findViewById(R.id.send_action_now).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (GameInfo.game.game_ended){
+                        Intent intent = new Intent(v.getContext(),GameStart.class);
+                        startActivity(intent);
+                    }
+
                     if(ans.length>0&&cur_ans.equals("")){
                         Toast.makeText(v.getContext(),"Выберите вариант",Toast.LENGTH_SHORT).show();
                         return;

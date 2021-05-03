@@ -88,6 +88,7 @@ public class GameInfo{
     private int max_round;
     public int cur_round=0;
     public boolean isLeader = false;
+    public boolean game_ended = false;
 
     public static GameInfo getInstance(){
         if (game==null){
@@ -120,6 +121,11 @@ public class GameInfo{
                 game.check_end();
                 for (Var v:game.vars.values()) if(v.visibility) game.print_all(v.full_str());
 
+                if (game.game_ended) {
+                    game.print_all("-d"+SEP+game.cur_round);
+                    GameStart.fragments.get(1).onResume();
+                    return;
+                }
                 for (int i=1;i<game.clients.size();i++){
                     if(game.clients.get(i).alive){
                         for (Action a: game.roles.get(game.clients.get(i).role_id).actions.values()) {
@@ -150,6 +156,7 @@ public class GameInfo{
     }
 
     void start_timer(){
+        if (game_ended) return;
         if(round_length==0) return;
         if(isHost)
             start_time = System.currentTimeMillis();
@@ -217,6 +224,17 @@ public class GameInfo{
         //Отправить всем новые значения переменных
         for (Var v:vars.values()) if(v.visibility) print_all(v.toString());
 
+        if(!ChangeVar.var_id.equals("")) {
+            Var var = GameInfo.game.vars.get(ChangeVar.var_id);
+            ChangeVar.var_value.setText(var.name + "  " + var.value);
+        }
+
+        if (game_ended){
+            print_all("-d"+SEP+cur_round);
+            GameStart.fragments.get(1).onResume();
+            return;
+        }
+
         for (int i=1;i<clients.size();i++){
             if(clients.get(i).alive){
                 for (Action a: roles.get(clients.get(i).role_id).actions.values()) {
@@ -225,21 +243,15 @@ public class GameInfo{
             }
         }
 
-
         start_timer();
         print_all("start_time"+SEP+start_time+SEP+round_length);
 
         GameStart.fragments.get(1).onResume();
         print_all("-d"+SEP+cur_round);
-
-        if(!ChangeVar.var_id.equals("")) {
-            Var var = GameInfo.game.vars.get(ChangeVar.var_id);
-            ChangeVar.var_value.setText(var.name + "  " + var.value);
-        }
-
     }
 
-    private void check_end() {
+    public void check_end() {
+        if (game_ended) return;
         Pair<Double, HashMap<String, Double>> t = compute_action(win_cond);
         if(t.first!=0){
             win();
@@ -253,17 +265,27 @@ public class GameInfo{
     }
 
     private void loose() {
+        if(game_ended) return;
+        mainHandler.removeCallbacks(timer_runnable);
+
         log_journal += "Вы проиграли"+'\n'+log_journal_sep+'\n';
         print_all("log_journal"+SEP+"Вы проиграли");
+        print_all("game_ended");
 
         System.out.println("Вы проиграли");
+        game_ended = true;
     }
 
     private void win() {
+        if (game_ended) return;
+        mainHandler.removeCallbacks(timer_runnable);
+
         log_journal += "Вы победили"+'\n'+log_journal_sep+'\n';
         print_all("log_journal"+SEP+"Вы победили");
-        System.out.println("Вы победили");
+        print_all("game_ended");
 
+        System.out.println("Вы победили");
+        game_ended = true;
     }
 
     public void clear(){
@@ -396,7 +418,6 @@ public class GameInfo{
                             l[5].equals("1"));
                     if(v.id.equals("ptime")){
                         game.round_length = ((long) v.value)*1000;
-                        game.round_length = 120*1000;//Заменить
                         v.value = 0;
                         game.max_round = (int)v.maxValue;
                         if(game.max_round==0)
@@ -565,8 +586,6 @@ public class GameInfo{
                                         SEP+id+SEP+game.clients.get(id).name+SEP+ tmp_a.descr+SEP+
                                                 TextUtils.join(",",tmp_a.ans)+SEP+
                                         TextUtils.join(",",tmp_a.ans_id));
-//                                        String.join(",",tmp_a.ans)+SEP+
-//                                        String.join(",",tmp_a.ans_id));
                             }
                         }
                         else{//leader
@@ -599,6 +618,10 @@ public class GameInfo{
                 return;
             case "leader":
                 game.isLeader = true;
+                return;
+            case "game_ended":
+                game.game_ended = true;
+                game.mainHandler.removeCallbacks(game.timer_runnable);
                 return;
         }
     }

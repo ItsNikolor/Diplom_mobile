@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Pair;
 import android.view.View;
@@ -126,14 +127,29 @@ public class WaitingMenuClient extends AppCompatActivity {
                     GameInfo.game.outHandlers.add(new OutHandlerThread(socket));
                 } catch (IOException e) {
                     e.printStackTrace();
-                    GameInfo.game.mainHandler.post(new Runnable() {
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            Intent intent = new Intent(WaitingMenuClient.this,MainActivity.class);
-                            startActivity(intent);
+                            return;
                         }
-                    });
-                    return;
+                    },150);
+                    try {
+                        System.out.println("Client reconnect");
+                        socket.bind(null);
+                        socket.connect((new InetSocketAddress(GameInfo.game.hostAdr, 8888)), 500);
+                        GameInfo.game.outHandlers.add(new OutHandlerThread(socket));
+                    } catch (IOException ioException) {
+                        ioException.printStackTrace();
+                        GameInfo.game.mainHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                Intent intent = new Intent(WaitingMenuClient.this,Connect.class);
+                                startActivity(intent);
+                            }
+                        });
+                        return;
+                    }
                 }
 
                 Thread inThread = new Thread(new Runnable() {

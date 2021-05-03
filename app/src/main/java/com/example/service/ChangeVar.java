@@ -38,6 +38,12 @@ public class ChangeVar extends AppCompatActivity {
         findViewById(R.id.send_change).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(GameInfo.game.game_ended){
+                    Intent intent = new Intent(v.getContext(), GameStart.class);
+                    startActivity(intent);
+                    var_id = "";
+                }
+
                 String s = ((TextView) findViewById(R.id.edit_var)).getText().toString();
                 double value = 0;
                 try {
@@ -48,9 +54,20 @@ public class ChangeVar extends AppCompatActivity {
                 }
 
                 var.set_value(value);
+                GameInfo.game.check_end();
                 if(var.visibility){
                     GameInfo.game.print_all(var.toString());
                 }
+
+                if(GameInfo.game.game_ended){
+                    GameInfo.game.print_all("-d"+GameInfo.SEP+GameInfo.game.cur_round);
+
+                    Intent intent = new Intent(v.getContext(), GameStart.class);
+                    startActivity(intent);
+                    var_id = "";
+                    return;
+                }
+
 
                 for (int i=1;i<GameInfo.game.clients.size();i++){
                     if(GameInfo.game.clients.get(i).alive){

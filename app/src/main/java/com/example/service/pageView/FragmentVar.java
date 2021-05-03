@@ -49,8 +49,6 @@ public class FragmentVar extends Fragment {
         ListView listView = view.findViewById(R.id.list_var);
         listView.setAdapter(deviceAdapter);
 
-        //GameInfo.game.cur_adapter = deviceAdapter;
-
         log = (TextView) view.findViewById(R.id.log_journal);
         log.setMovementMethod(new ScrollingMovementMethod());
 
@@ -65,7 +63,10 @@ public class FragmentVar extends Fragment {
             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    if(GameInfo.game.game_ended) return;
+
                     Var v = (Var) parent.getItemAtPosition(position);
+                    if(v.id.equals("ptime")) return;
                     ChangeVar.var_id = v.id;
 
                     Intent intent = new Intent(view.getContext(), ChangeVar.class);
@@ -99,7 +100,6 @@ public class FragmentVar extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        System.out.println("Im in resume var");
 
         if(!alive) return;
 
@@ -122,12 +122,6 @@ public class FragmentVar extends Fragment {
             descr = GameInfo.game.roles.get(GameInfo.game.cur_action.split("_")[0]).actions.get(GameInfo.game.cur_action).descr;
 
         last_action.setText(descr);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-//        alive = false;
     }
 
     static public void update_timer(){

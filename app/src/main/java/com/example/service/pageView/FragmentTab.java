@@ -60,6 +60,7 @@ public class FragmentTab extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        if(!alive) return;
         deviceAdapter.clear();
         tabsId.clear();
         for (Tab tab : GameInfo.game.tabs.values()) {

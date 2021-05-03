@@ -51,8 +51,8 @@ public class FragmentAction extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                ConfirmAction.action_id = ((Action) parent.getItemAtPosition(position)).id;
-//                ConfirmAction.player_name = ((Action) parent.getItemAtPosition(position)).player_name;
+                if(GameInfo.game.game_ended) return;
+
                 ConfirmAction.action = ((Action) parent.getItemAtPosition(position));
                 ConfirmAction.cur_round = GameInfo.game.cur_round;
 
