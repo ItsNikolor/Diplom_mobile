@@ -53,7 +53,7 @@ import static java.lang.Math.min;
 import static java.util.Collections.shuffle;
 
 public class GameInfo{
-    public static final String START_NAME = "!";
+    public static final String START_NAME = "";
     private static final String TAG = "MyDebug";
     static final String ENTER = "{";
     public static final String SEP = "#";
