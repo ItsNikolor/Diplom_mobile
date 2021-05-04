@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -73,14 +74,35 @@ public class FragmentVar extends Fragment {
                     startActivity(intent);
                 }
             });
+            view.findViewById(R.id.end_round).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    GameInfo.game.next_round();
+                }
+            });
         }
         else if (GameInfo.game.isLeader) {
             view.findViewById(R.id.isLeader).setVisibility(View.VISIBLE);
             last_action.setVisibility(View.GONE);
+            view.findViewById(R.id.end_round).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    GameInfo.game.outHandlers.get(0).print("next_round"+GameInfo.SEP+GameInfo.game.cur_round);
+                }
+            });
         }
         else {
             view.findViewById(R.id.isLeader).setVisibility(View.GONE);
             last_action.setVisibility(View.VISIBLE);
+
+            view.findViewById(R.id.end_round).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    GameInfo.game.cur_action = "";
+                    GameInfo.game.outHandlers.get(0).print("deny");
+                }
+            });
+            ((Button)view.findViewById(R.id.end_round)).setText("Отменить действие");
         }
         alive = true;
     }

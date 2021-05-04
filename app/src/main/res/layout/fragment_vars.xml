@@ -54,4 +54,10 @@
         android:scrollbars = "vertical"
         android:textSize="20sp"
         android:text="TextView" />
+
+    <Button
+        android:id="@+id/end_round"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Завершить раунд" />
 </LinearLayout>

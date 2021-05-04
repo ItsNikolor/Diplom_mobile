@@ -71,30 +71,10 @@ public class ConfirmAction extends AppCompatActivity {
                     Toast.makeText(v.getContext(),"Выберите вариант",Toast.LENGTH_SHORT).show();
                     return;
                 }
-                GameInfo.send_action(action.id,cur_ans,cur_round,false);
+                GameInfo.send_action(action.id,cur_ans,cur_round,action.player_id,false);
                 Intent intent = new Intent(v.getContext(),GameStart.class);
                 startActivity(intent);
             }
         });
-        if (GameInfo.game.isHost){
-            findViewById(R.id.send_action_now).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (GameInfo.game.game_ended){
-                        Intent intent = new Intent(v.getContext(),GameStart.class);
-                        startActivity(intent);
-                    }
-
-                    if(ans.length>0&&cur_ans.equals("")){
-                        Toast.makeText(v.getContext(),"Выберите вариант",Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    GameInfo.send_action(action.id,cur_ans,cur_round,true);
-                    Intent intent = new Intent(v.getContext(),GameStart.class);
-                    startActivity(intent);
-                }
-            });
-        }
-        else findViewById(R.id.send_action_now).setVisibility(View.GONE);
     }
 }

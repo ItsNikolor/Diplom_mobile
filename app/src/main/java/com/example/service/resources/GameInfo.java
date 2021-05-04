@@ -61,7 +61,7 @@ public class GameInfo{
     private static String[] loose_cond,win_cond;
 
     public long start_time, current_time, round_length;
-    public String cur_action = "",cur_ans = "";
+
 
     public boolean isHost;
     public boolean isConnecting;
@@ -89,6 +89,8 @@ public class GameInfo{
     public int cur_round=0;
     public boolean isLeader = false;
     public boolean game_ended = false;
+    public String cur_action = "";
+    //    public String cur_action = "",cur_ans = "";
 
     public static GameInfo getInstance(){
         if (game==null){
@@ -105,7 +107,7 @@ public class GameInfo{
 
             if(current_time-start_time>=round_length){
                 if(isHost)
-                    next_round(false);
+                    next_round();
                 return;
                 //mainHandler.removeCallbacks(this);
             }
@@ -113,45 +115,15 @@ public class GameInfo{
         }
     };
 
-    public static void send_action(String action_id, String cur_ans,int before_round, boolean now) {
+    public static void send_action(String action_id, String cur_ans,int before_round, String player_id,boolean now) {
         if(game.isHost){
-            if(now){
-                Action action = game.roles.get(action_id.split("_")[0]).actions.get(action_id);
-                game.perform_action(action,cur_ans,true);
-                game.check_end();
-                for (Var v:game.vars.values()) if(v.visibility) game.print_all(v.full_str());
-
-                if (game.game_ended) {
-                    game.print_all("-d"+SEP+game.cur_round);
-                    GameStart.fragments.get(1).onResume();
-                    return;
-                }
-                for (int i=1;i<game.clients.size();i++){
-                    if(game.clients.get(i).alive){
-                        for (Action a: game.roles.get(game.clients.get(i).role_id).actions.values()) {
-                            game.outHandlers.get(i).print(a.available_string());
-                        }
-                    }
-                }
-
-                for (String key:game.additional_actions.keySet()){
-                    if(!game.additional_actions.get(key).available())
-                        game.outHandlers.get(game.leader_id).print("-ka"+SEP+key);
-                }
-
-                game.print_all("-d"+SEP+game.cur_round);
-                GameStart.fragments.get(1).onResume();
-            }
-            else{
-                game.cur_action = action_id;
-                game.cur_ans = cur_ans;
-                game.next_round(true);
-            }
+            Action action = game.roles.get(action_id.split("_")[0]).actions.get(action_id);
+            game.perform_action(action,cur_ans,true);
         }
         else{
             if(before_round!=game.cur_round)
                 return;
-            game.outHandlers.get(0).print("send"+SEP+action_id+SEP+cur_ans+SEP+before_round);
+            game.outHandlers.get(0).print("send"+SEP+action_id+SEP+cur_ans+SEP+before_round+SEP+player_id);
         }
     }
 
@@ -187,34 +159,55 @@ public class GameInfo{
             }
 
         }
+
+        check_end();
+        for (Var v:game.vars.values()) if(v.visibility) game.print_all(v.full_str());
+
+        if (game.game_ended) {
+            game.print_all("-d"+SEP+game.cur_round);
+            GameStart.fragments.get(1).onResume();
+            return;
+        }
+        for (int i=1;i<game.clients.size();i++){
+            if(game.clients.get(i).alive){
+                for (Action action: game.roles.get(game.clients.get(i).role_id).actions.values()) {
+                    game.outHandlers.get(i).print(action.available_string());
+                }
+            }
+        }
+
+        for (String key:game.additional_actions.keySet()){
+            if(!game.additional_actions.get(key).available())
+                game.outHandlers.get(game.leader_id).print("-ka"+SEP+key);
+        }
+
+        game.print_all("-d"+SEP+game.cur_round);
+        GameStart.fragments.get(1).onResume();
     }
 
-    private void next_round(boolean host) {
+    public void next_round() {
         cur_round += 1;
         additional_actions.clear();
         vars.get("ptime").value = cur_round;
         mainHandler.removeCallbacks(timer_runnable);
-        //Выполнить действие
-        if(!cur_action.equals("")){
-            Action a = roles.get(cur_action.split("_")[0]).actions.get(cur_action);
-            perform_action(a,cur_ans,host);
-            cur_action = "";
-            cur_ans = "";
-        }
 
         //Проверить win и lose
         check_end();
         //Выполнить функции
+        List<HashMap<String, Double>> tmp_funcs = new ArrayList<>();
         for(Var v:vars.values()){
             for(Func f:v.funcs){
                 Pair<Double, HashMap<String, Double>> t = compute_action(f.cond);
                 if(t.first!=0){
-                    t = compute_action(f.func);
-                    assign(t.second);
+                    tmp_funcs.add(compute_action(f.func).second);
+//                    t = compute_action(f.func);
+//                    assign(t.second);
                     break;
                 }
             }
         }
+        for (HashMap<String,Double> h:tmp_funcs) assign(h);
+
         //Проверить win и lose
         check_end();
         if(cur_round>=max_round){
@@ -422,7 +415,7 @@ public class GameInfo{
                         game.max_round = (int)v.maxValue;
                         if(game.max_round==0)
                             game.max_round = 999999;
-                        v.visibility = false;
+                        v.visibility = true;
                     }
                     game.vars.put(l[1], v);
                 }
@@ -572,15 +565,17 @@ public class GameInfo{
                             Action tmp_a = game.roles.get(finalL[1].split("_")[0]).actions.get(finalL[1]);
                             if (!tmp_a.available())
                                 return;
-                            game.additional_actions.put(Integer.toString(id), tmp_a);
 
                             if(id==game.leader_id){
-                                game.cur_action = finalL[1];
-                                game.cur_ans = finalL[2];
-
-                                game.next_round(false);
+                                if(!finalL[4].equals("")) {
+                                    game.additional_actions.remove(finalL[4]);
+                                    game.outHandlers.get(game.leader_id).print("-ka" + SEP + finalL[4]);
+                                    game.outHandlers.get(Integer.parseInt(finalL[4])).print("deny");
+                                }
+                                game.perform_action(tmp_a,finalL[2],false);
                             }
                             else{
+                                game.additional_actions.put(Integer.toString(id), tmp_a);
                                 game.outHandlers.get(id).print("confirm"+SEP+finalL[1]);
                                 game.outHandlers.get(game.leader_id).print("send"+SEP+ finalL[1]+SEP+ finalL[2]+SEP+ finalL[3]+
                                         SEP+id+SEP+game.clients.get(id).name+SEP+ tmp_a.descr+SEP+
@@ -593,6 +588,7 @@ public class GameInfo{
                                     empty_split(finalL[7],","),empty_split(finalL[8],","));
                             tmp_a.player_name = finalL[5];
                             tmp_a.current_ans = finalL[2];
+                            tmp_a.player_id = finalL[4];
                             game.additional_actions.put(finalL[4],tmp_a);
                             game.mainHandler.post(new Runnable() {
                                 @Override
@@ -616,12 +612,31 @@ public class GameInfo{
                     }
                 });
                 return;
+            case "deny":
+                if(game.isHost){
+                    game.additional_actions.remove(Integer.toString(id));
+                    game.outHandlers.get(game.leader_id).print("-ka" + SEP + id);
+                }
+                else {
+                    game.cur_action = "";
+                    game.mainHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            GameStart.fragments.get(1).onResume();
+                        }
+                    });
+                }
+                return;
             case "leader":
                 game.isLeader = true;
                 return;
             case "game_ended":
                 game.game_ended = true;
                 game.mainHandler.removeCallbacks(game.timer_runnable);
+                return;
+            case "next_round":
+                if (game.cur_round==Integer.parseInt(l[1]))
+                    game.next_round();
                 return;
         }
     }

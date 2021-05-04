@@ -21,7 +21,7 @@ public class Action {
     int count_use=0;
     public String current_ans = "";
 
-    public String player_name = "";
+    public String player_name = "",player_id="";
     public boolean can_use = true;
 
     public Action(String id, int use_n, String descr, String[] req, String[] ans, String[] ans_id) {
