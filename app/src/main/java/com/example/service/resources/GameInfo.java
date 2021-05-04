@@ -410,6 +410,8 @@ public class GameInfo{
                             Float.parseFloat(l[4]),
                             l[5].equals("1"));
                     if(v.id.equals("ptime")){
+                        if(game.vars.containsKey(l[1])) return;
+
                         game.round_length = ((long) v.value)*1000;
                         v.value = 0;
                         game.max_round = (int)v.maxValue;
@@ -631,12 +633,23 @@ public class GameInfo{
                 game.isLeader = true;
                 return;
             case "game_ended":
-                game.game_ended = true;
-                game.mainHandler.removeCallbacks(game.timer_runnable);
+                game.mainHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        game.game_ended = true;
+                        game.mainHandler.removeCallbacks(game.timer_runnable);
+                    }
+                });
                 return;
             case "next_round":
-                if (game.cur_round==Integer.parseInt(l[1]))
-                    game.next_round();
+                String[] finalL1 = l;
+                game.mainHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (game.cur_round==Integer.parseInt(finalL1[1]))
+                            game.next_round();
+                    }
+                });
                 return;
         }
     }
@@ -768,6 +781,11 @@ public class GameInfo{
         Stack<String> stack = new Stack<>();
 
         if(s.length==0) return new Pair<>(1.,ass);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            System.out.println(String.join(" ",s));
+        }
+
         for (String c:s) {
             if (!ops.contains(c)) {
                 stack.push(c);
@@ -990,6 +1008,6 @@ public class GameInfo{
 
     static Set<String> ops = new HashSet<String>(Arrays.asList(
             new String[]{"+", "-","*","/","//","%","&","|",
-            "<","<=",">",">=","=","eq","max","min","show","ans","an",
+            "<","<=",">",">=","=","eq","max","min","show","ans","an","minus",
             "not","exp"}));
 }

@@ -77,7 +77,8 @@ public class FragmentVar extends Fragment {
             view.findViewById(R.id.end_round).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    GameInfo.game.next_round();
+                    if(!GameInfo.game.game_ended)
+                        GameInfo.game.next_round();
                 }
             });
         }
@@ -87,7 +88,8 @@ public class FragmentVar extends Fragment {
             view.findViewById(R.id.end_round).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    GameInfo.game.outHandlers.get(0).print("next_round"+GameInfo.SEP+GameInfo.game.cur_round);
+                    if(!GameInfo.game.game_ended)
+                        GameInfo.game.outHandlers.get(0).print("next_round"+GameInfo.SEP+GameInfo.game.cur_round);
                 }
             });
         }
@@ -98,6 +100,7 @@ public class FragmentVar extends Fragment {
             view.findViewById(R.id.end_round).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (GameInfo.game.game_ended) return;
                     GameInfo.game.cur_action = "";
                     GameInfo.game.outHandlers.get(0).print("deny");
                 }

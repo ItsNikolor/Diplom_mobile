@@ -43,11 +43,13 @@ public class ConfirmAction extends AppCompatActivity {
                     cur_ans = ans_id[finalI];
                 }
             });
-            rdbtn.setEnabled(action.current_ans.equals(""));
             radioGroup.addView(rdbtn);
-            if(action.current_ans.equals(ans_id[finalI])) {
-                radioGroup.check(rdbtn.getId());
-                cur_ans = ans_id[i];
+            if(GameInfo.game.isLeader) {
+                rdbtn.setEnabled(action.current_ans.equals(""));
+                if (action.current_ans.equals(ans_id[finalI])) {
+                    radioGroup.check(rdbtn.getId());
+                    cur_ans = ans_id[i];
+                }
             }
         }
 
