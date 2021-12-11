@@ -19,16 +19,20 @@ public class Create extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case 10:
-                if (resultCode == RESULT_OK) {
-                    Uri uri = data.getData();
-                    File file = new File(uri.getPath());
-                    final String[] split = file.getPath().split(":");
-                    String path = split[1];
+        if (requestCode == 10) {
+            if (resultCode == RESULT_OK) {
 
-                    ((TextView) findViewById(R.id.scenarioText)).setText(path);
-                }
+
+                Uri uri = data.getData();
+                String path = new FileUtils(getApplicationContext()).getPath(uri);
+
+//                    File file = new File(uri.getPath());
+//                    final String[] split = file.getPath().split(":");
+//                    String path = split[1];
+//                    String path = file.getPath();
+
+                ((TextView) findViewById(R.id.scenarioText)).setText(path);
+            }
         }
     }
 

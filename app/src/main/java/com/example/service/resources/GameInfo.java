@@ -90,7 +90,6 @@ public class GameInfo{
     public boolean isLeader = false;
     public boolean game_ended = false;
     public String cur_action = "";
-    //    public String cur_action = "",cur_ans = "";
 
     public static GameInfo getInstance(){
         if (game==null){
@@ -150,13 +149,16 @@ public class GameInfo{
             print_all("log_journal"+SEP+a.descr);
 
 
+            List<HashMap<String, Double>> assigns = new ArrayList<>();
             for(int i=0;i<a.cond.size();i++){
                 t = compute_action(a.cond.get(i),a.id);
                 if (t.first!=0){
-                    t = compute_action(a.action.get(i),a.id);
-                    assign(t.second);
+                    assigns.add(compute_action(a.action.get(i),a.id).second);
+//                    t = compute_action(a.action.get(i),a.id);
+//                    assign(t.second);
                 }
             }
+            for (HashMap<String,Double> ass:assigns) assign(ass);
 
         }
 
@@ -194,19 +196,19 @@ public class GameInfo{
         //Проверить win и lose
         check_end();
         //Выполнить функции
-        List<HashMap<String, Double>> tmp_funcs = new ArrayList<>();
+        List<HashMap<String, Double>> assigns = new ArrayList<>();
         for(Var v:vars.values()){
             for(Func f:v.funcs){
                 Pair<Double, HashMap<String, Double>> t = compute_action(f.cond);
                 if(t.first!=0){
-                    tmp_funcs.add(compute_action(f.func).second);
+                    assigns.add(compute_action(f.func).second);
 //                    t = compute_action(f.func);
 //                    assign(t.second);
                     break;
                 }
             }
         }
-        for (HashMap<String,Double> h:tmp_funcs) assign(h);
+        for (HashMap<String,Double> ass:assigns) assign(ass);
 
         //Проверить win и lose
         check_end();
