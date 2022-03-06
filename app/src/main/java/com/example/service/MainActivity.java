@@ -38,9 +38,9 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
 
-    static final IntentFilter intentFilter = new IntentFilter();
-    private WifiP2pManager manager;
-    private WifiP2pManager.Channel channel;
+//    static final IntentFilter intentFilter = new IntentFilter();
+//    private WifiP2pManager manager;
+//    private WifiP2pManager.Channel channel;
 
     final Handler handler = new Handler();
 
@@ -49,8 +49,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
 
         GameInfo.getInstance();
         GameInfo.game.mainHandler =  new Handler(getMainLooper());
@@ -67,10 +65,10 @@ public class MainActivity extends AppCompatActivity {
         handler.removeCallbacksAndMessages(null);
 
 
-        intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
-        intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
-        intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
-        intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
+//        intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
+//        intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
+//        intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
+//        intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
 
         Button connectButton = findViewById(R.id.connectButton);
         connectButton.setOnClickListener(new View.OnClickListener() {
@@ -137,23 +135,23 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         if(checkPerm()) handler.removeCallbacksAndMessages(null);
 
-        manager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
-        channel = manager.initialize(this, getMainLooper(), null);
-
-        if(manager!=null&&channel!=null) {
-            manager.stopPeerDiscovery(channel, new WifiP2pManager.ActionListener() {
-                @Override
-                public void onSuccess() {
-                    System.out.println(TAG + ":  " + "Останивили дисковери");
-                }
-
-                @Override
-                public void onFailure(int reason) {
-                    System.out.println(TAG + ":  " + "Не смогли остановить дисковери");
-                }
-            });
-            Connect.disconnect(manager, channel);
-        }
+//        manager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
+//        channel = manager.initialize(this, getMainLooper(), null);
+//
+//        if(manager!=null&&channel!=null) {
+//            manager.stopPeerDiscovery(channel, new WifiP2pManager.ActionListener() {
+//                @Override
+//                public void onSuccess() {
+//                    System.out.println(TAG + ":  " + "Останивили дисковери");
+//                }
+//
+//                @Override
+//                public void onFailure(int reason) {
+//                    System.out.println(TAG + ":  " + "Не смогли остановить дисковери");
+//                }
+//            });
+//            Connect.disconnect(manager, channel);
+//        }
     }
 
 

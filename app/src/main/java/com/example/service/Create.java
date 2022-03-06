@@ -10,9 +10,9 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.service.resources.FileUtils;
 import com.example.service.resources.GameInfo;
 
-import java.io.File;
 import java.io.IOException;
 
 public class Create extends AppCompatActivity {
@@ -25,6 +25,10 @@ public class Create extends AppCompatActivity {
 
                 Uri uri = data.getData();
                 String path = new FileUtils(getApplicationContext()).getPath(uri);
+
+//                String path = new FileUtils_old(getApplicationContext()).getPath(uri);
+                GameInfo.uri = uri;
+                GameInfo.uri_context = getApplicationContext();
 
 //                    File file = new File(uri.getPath());
 //                    final String[] split = file.getPath().split(":");
@@ -70,6 +74,8 @@ public class Create extends AppCompatActivity {
                 try {
                     GameInfo.game.init(scenarioPath.getText().toString());
                 } catch (IOException e) {
+                    Toast.makeText(Create.this,
+                            "Проблемы со сценарием",Toast.LENGTH_LONG).show();
                     e.printStackTrace();
                 }
 

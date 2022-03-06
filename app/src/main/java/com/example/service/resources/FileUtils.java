@@ -1,5 +1,4 @@
-package com.example.service;
-
+package com.example.service.resources;
 import android.annotation.SuppressLint;
 import android.content.ContentUris;
 import android.content.Context;
@@ -25,14 +24,14 @@ import java.util.List;
 public class FileUtils {
     private static Uri contentUri = null;
 
-    static Context context;
+    Context context;
 
     public FileUtils( Context context) {
         this.context=context;
     }
 
     @SuppressLint("NewApi")
-    public static String getPath( final Uri uri) {
+    public String getPath(final Uri uri) {
         // check here to KITKAT or new version
         final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
         String selection = null;
@@ -47,7 +46,7 @@ public class FileUtils {
                 final String type = split[0];
 
                 String fullPath = getPathFromExtSD(split);
-                if (!fullPath.equals("")) {
+                if (fullPath != "") {
                     return fullPath;
                 } else {
                     return null;
@@ -208,13 +207,13 @@ public class FileUtils {
         return null;
     }
 
-    private static boolean fileExists(String filePath) {
+    private  boolean fileExists(String filePath) {
         File file = new File(filePath);
 
         return file.exists();
     }
 
-    private static String getPathFromExtSD(String[] pathData) {
+    private String getPathFromExtSD(String[] pathData) {
         final String type = pathData[0];
         final String relativePath = "/" + pathData[1];
         String fullPath = "";
@@ -249,7 +248,7 @@ public class FileUtils {
         return fullPath;
     }
 
-    private static String getDriveFilePath(Uri uri) {
+    private String getDriveFilePath(Uri uri) {
         Uri returnUri = uri;
         Cursor returnCursor = context.getContentResolver().query(returnUri, null, null, null, null);
         /*
@@ -267,7 +266,7 @@ public class FileUtils {
             InputStream inputStream = context.getContentResolver().openInputStream(uri);
             FileOutputStream outputStream = new FileOutputStream(file);
             int read = 0;
-            int maxBufferSize = 1024 * 1024;
+            int maxBufferSize = 1 * 1024 * 1024;
             int bytesAvailable = inputStream.available();
 
             //int bufferSize = 1024;
@@ -294,7 +293,7 @@ public class FileUtils {
      * @param newDirName if you want to create a directory, you can set this variable
      * @return
      */
-    private static String copyFileToInternalStorage(Uri uri, String newDirName) {
+    private String copyFileToInternalStorage(Uri uri,String newDirName) {
         Uri returnUri = uri;
 
         Cursor returnCursor = context.getContentResolver().query(returnUri, new String[]{
@@ -346,11 +345,11 @@ public class FileUtils {
         return output.getPath();
     }
 
-    private static String getFilePathForWhatsApp(Uri uri){
+    private String getFilePathForWhatsApp(Uri uri){
         return  copyFileToInternalStorage(uri,"whatsapp");
     }
 
-    private static String getDataColumn(Context context, Uri uri, String selection, String[] selectionArgs) {
+    private String getDataColumn(Context context, Uri uri, String selection, String[] selectionArgs) {
         Cursor cursor = null;
         final String column = "_data";
         final String[] projection = {column};
@@ -372,27 +371,27 @@ public class FileUtils {
         return null;
     }
 
-    private static boolean isExternalStorageDocument(Uri uri) {
+    private  boolean isExternalStorageDocument(Uri uri) {
         return "com.android.externalstorage.documents".equals(uri.getAuthority());
     }
 
-    private static boolean isDownloadsDocument(Uri uri) {
+    private  boolean isDownloadsDocument(Uri uri) {
         return "com.android.providers.downloads.documents".equals(uri.getAuthority());
     }
 
-    private static boolean isMediaDocument(Uri uri) {
+    private  boolean isMediaDocument(Uri uri) {
         return "com.android.providers.media.documents".equals(uri.getAuthority());
     }
 
-    private static boolean isGooglePhotosUri(Uri uri) {
+    private  boolean isGooglePhotosUri(Uri uri) {
         return "com.google.android.apps.photos.content".equals(uri.getAuthority());
     }
 
-    public static boolean isWhatsAppFile(Uri uri){
+    public boolean isWhatsAppFile(Uri uri){
         return "com.whatsapp.provider.media".equals(uri.getAuthority());
     }
 
-    private static boolean isGoogleDriveUri(Uri uri) {
+    private  boolean isGoogleDriveUri(Uri uri) {
         return "com.google.android.apps.docs.storage".equals(uri.getAuthority()) || "com.google.android.apps.docs.storage.legacy".equals(uri.getAuthority());
     }
 

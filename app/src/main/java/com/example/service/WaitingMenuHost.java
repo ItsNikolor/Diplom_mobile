@@ -4,12 +4,12 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.net.wifi.p2p.WifiP2pGroup;
-import android.net.wifi.p2p.WifiP2pManager;
-import android.net.wifi.p2p.nsd.WifiP2pDnsSdServiceInfo;
+import android.net.nsd.NsdManager;
+import android.net.nsd.NsdServiceInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.util.Log;
 import android.util.Pair;
 import android.view.View;
 import android.widget.Button;
@@ -22,70 +22,25 @@ import com.example.service.resources.GameInfo;
 import com.example.service.resources.Role;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class WaitingMenuHost extends AppCompatActivity {
     private static final String TAG = "MyDebug";
 
-    protected WifiP2pManager.Channel channel;
-    private WiFiDirectBroadcastReceiver receiver;
-
-    private WifiP2pDnsSdServiceInfo serviceInfo;
-
-
-    HandlerThread handlerThread,acceptThread=null;
+    HandlerThread acceptThread=null;
 
     public static ServerSocket listener;
 
-    private WifiP2pManager manager;
 
     static PairListAdapter players_adapter;
 
-    public void setDeviceName(String devName) {
-        try {
-            Class[] paramTypes = new Class[3];
-            paramTypes[0] = WifiP2pManager.Channel.class;
-            paramTypes[1] = String.class;
-            paramTypes[2] = WifiP2pManager.ActionListener.class;
-            Method setDeviceName = manager.getClass().getMethod(
-                    "setDeviceName", paramTypes);
-            setDeviceName.setAccessible(true);
 
-            Object arglist[] = new Object[3];
-            arglist[0] = channel;
-            arglist[1] = devName.substring(0,Math.min(17,devName.length()));
-            arglist[2] = new WifiP2pManager.ActionListener() {
+    private NsdManager.RegistrationListener registrationListener;
+    private String serviceName;
+    private NsdManager nsdManager;
 
-                @Override
-                public void onSuccess() {
-                    System.out.println("setDeviceName succeeded");
-                }
-
-                @Override
-                public void onFailure(int reason) {
-                    System.out.println("setDeviceName failed");
-                }
-            };
-
-            setDeviceName.invoke(manager, arglist);
-
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        }
-
-    }
 
     public static void add_client() {
         GameInfo.game.mainHandler.post(new Runnable() {
@@ -110,6 +65,56 @@ public class WaitingMenuHost extends AppCompatActivity {
         });
     }
 
+    public void initializeRegistrationListener() {
+        registrationListener = new NsdManager.RegistrationListener() {
+
+            @Override
+            public void onServiceRegistered(NsdServiceInfo NsdServiceInfo) {
+                // Save the service name. Android may have changed it in order to
+                // resolve a conflict, so update the name you initially requested
+                // with the name Android actually used.
+                serviceName = NsdServiceInfo.getServiceName();
+                Log.d(TAG, "Service registered with name " + serviceName);
+            }
+
+            @Override
+            public void onRegistrationFailed(NsdServiceInfo serviceInfo, int errorCode) {
+                // Registration failed! Put debugging code here to determine why.
+                Log.d(TAG, "Service registration failed");
+            }
+
+            @Override
+            public void onServiceUnregistered(NsdServiceInfo arg0) {
+                // Service has been unregistered. This only happens when you call
+                // NsdManager.unregisterService() and pass in this listener.
+                Log.d(TAG, "Service Unregistered");
+            }
+
+            @Override
+            public void onUnregistrationFailed(NsdServiceInfo serviceInfo, int errorCode) {
+                // Unregistration failed. Put debugging code here to determine why.
+                Log.d(TAG, "Service Unregistered failed");
+            }
+        };
+    }
+
+    public void registerService(String name, int port) {
+        initializeRegistrationListener();
+        // Create the NsdServiceInfo object, and populate it.
+        NsdServiceInfo serviceInfo = new NsdServiceInfo();
+
+        // The name is subject to change based on conflicts
+        // with other services advertised on the same network.
+        serviceInfo.setServiceName("NsdChat_" + name);
+        serviceInfo.setServiceType("_nsdchat._tcp");
+        serviceInfo.setPort(port);
+
+        nsdManager = (NsdManager) getApplicationContext().getSystemService(Context.NSD_SERVICE);
+
+        nsdManager.registerService(
+                serviceInfo, NsdManager.PROTOCOL_DNS_SD, registrationListener);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -124,11 +129,7 @@ public class WaitingMenuHost extends AppCompatActivity {
         players_adapter = new PairListAdapter(this,R.layout.adapter_view_pair,new ArrayList<>());
         l.setAdapter(players_adapter);
 
-        manager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
-        channel = manager.initialize(this, getMainLooper(), null);
-        receiver = new WiFiDirectBroadcastReceiver(manager, channel, this);
-
-        setDeviceName(GameInfo.START_NAME+GameInfo.game.roomName);
+        registerService(GameInfo.START_NAME+GameInfo.game.roomName, 8888);
 
         String roomName = GameInfo.game.roomName;
         String scenarioName = GameInfo.game.scenarioName;
@@ -140,11 +141,6 @@ public class WaitingMenuHost extends AppCompatActivity {
         GameInfo.game.outHandlers.add(new OutHandlerThread());
         add_client();
 
-        Map<String,String> record = new HashMap<String,String>();
-        record.put("roomName", roomName);
-        record.put("scenarioName", scenarioName);
-        serviceInfo = WifiP2pDnsSdServiceInfo.newInstance("_rooms",
-                "_presence._tcp", record);
 
         if (acceptThread == null) {
             acceptThread = new HandlerThread("");
@@ -209,17 +205,16 @@ public class WaitingMenuHost extends AppCompatActivity {
         };
     }
 
-    protected void startRegistration() {
-        handlerThread = new HandlerThread("");
-        handlerThread.start();
-
-        Handler handler = new Handler(handlerThread.getLooper());
-        handler.post(Connect.runnableDiscover(manager,channel,handler,10000));
-    }
-
-    private void stopRegistration() {
-        handlerThread.quit();
-    }
+//    protected void startRegistration() {
+//        handlerThread = new HandlerThread("");
+//        handlerThread.start();
+//
+//        Handler handler = new Handler(handlerThread.getLooper());
+//        handler.post(Connect.runnableDiscover(manager,channel,handler,10000));
+//    }
+//    private void stopRegistration() {
+//        handlerThread.quit();
+//    }
 
     @SuppressLint("MissingPermission")
     @Override
@@ -227,58 +222,23 @@ public class WaitingMenuHost extends AppCompatActivity {
         super.onResume();
         System.out.println("On Resume");
 
-        registerReceiver(receiver, MainActivity.intentFilter);
-
-        manager.requestGroupInfo(channel, new WifiP2pManager.GroupInfoListener() {
-            @Override
-            public void onGroupInfoAvailable(WifiP2pGroup group) {
-                if (group != null && manager != null && channel != null) {
-                    manager.removeGroup(channel, new WifiP2pManager.ActionListener() {
-                        @Override
-                        public void onSuccess() {
-                            System.out.println(TAG +":  "+ "removeGroup onSuccess");
-                            manager.createGroup(channel, new WifiP2pManager.ActionListener() {
-                                @Override
-                                public void onSuccess() {
-                                    startRegistration();
-                                }
-
-                                @Override
-                                public void onFailure(int reason) {
-
-                                }
-                            });
-                        }
-
-                        @Override
-                        public void onFailure(int reason) {
-                            System.out.println(TAG +":  "+ "removeGroup onFailure " + reason);
-                        }
-                    });
-                }
-                else{
-                    manager.createGroup(channel, new WifiP2pManager.ActionListener() {
-                        @Override
-                        public void onSuccess() {
-                            startRegistration();
-                        }
-
-                        @Override
-                        public void onFailure(int reason) {
-
-                        }
-                    });
-                }
-            }
-        });
     }
 
     @Override
     public void onPause() {
         super.onPause();
         System.out.println("On Pause");
+    }
 
-        stopRegistration();
-        unregisterReceiver(receiver);
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        System.out.println("On Destroy");
+        nsdManager.unregisterService(registrationListener);
+        try {
+            listener.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

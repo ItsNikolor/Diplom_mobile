@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
@@ -40,6 +41,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -53,6 +56,9 @@ import static java.lang.Math.min;
 import static java.util.Collections.shuffle;
 
 public class GameInfo{
+    public static Uri uri;
+    public static Context uri_context;
+
     public static final String START_NAME = "";
     private static final String TAG = "MyDebug";
     static final String ENTER = "{";
@@ -298,14 +304,37 @@ public class GameInfo{
     public void init(String scenarioPath) throws IOException {
         clear();
 
+        System.out.println("11111111111111111111111111111111111111");
         File check_file = new File(Environment.getExternalStorageDirectory(), scenarioPath);
         if (check_file.exists()) this.scenarioPath = check_file.getAbsolutePath();
         else this.scenarioPath = scenarioPath;
+        System.out.println("22222222222222222222222222222222222222");
 
         File scenarioFile = new File(this.scenarioPath);
+        File scenarioFile2 = scenarioFile;
+        if (scenarioPath.contains("/") && scenarioPath.contains(".")){
+            String filename = scenarioPath.substring(scenarioPath.lastIndexOf('/'));
+            filename = filename.substring(0,filename.indexOf('.'));
+            scenarioFile2 = new File(scenarioPath.substring(0,scenarioPath.lastIndexOf('/')+1)+filename+"/"+filename+".rp");
+
+        }
+
+        System.out.println("333333333333333333333333333333333333");
+
+
+
+        System.out.println(scenarioFile.getAbsolutePath() + " " + scenarioFile.exists());
+        System.out.println(scenarioFile2.getAbsolutePath() + " " + scenarioFile2.exists());
+
+        if (scenarioFile2.exists()){
+            scenarioFile = scenarioFile2;
+            this.scenarioPath = scenarioFile.getAbsolutePath();
+        }
+
 
         BufferedReader br = new BufferedReader(new FileReader(
                 scenarioFile));
+        System.out.println("444444444444444444444444444444");
 
         try {
             String line;
