@@ -21,19 +21,11 @@ public class Create extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 10) {
             if (resultCode == RESULT_OK) {
-
-
                 Uri uri = data.getData();
                 String path = new FileUtils(getApplicationContext()).getPath(uri);
 
-//                String path = new FileUtils_old(getApplicationContext()).getPath(uri);
                 GameInfo.uri = uri;
                 GameInfo.uri_context = getApplicationContext();
-
-//                    File file = new File(uri.getPath());
-//                    final String[] split = file.getPath().split(":");
-//                    String path = split[1];
-//                    String path = file.getPath();
 
                 ((TextView) findViewById(R.id.scenarioText)).setText(path);
             }
@@ -57,7 +49,6 @@ public class Create extends AppCompatActivity {
         findViewById(R.id.createRoom).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 TextView roomName = findViewById(R.id.roomNameInput);
                 if(roomName.getText().toString().isEmpty()) {
                     Toast.makeText(Create.this,
@@ -76,9 +67,8 @@ public class Create extends AppCompatActivity {
                 } catch (IOException e) {
                     Toast.makeText(Create.this,
                             "Проблемы со сценарием",Toast.LENGTH_LONG).show();
-                    e.printStackTrace();
+                    return;
                 }
-
                 startActivity(intent);
             }
         });

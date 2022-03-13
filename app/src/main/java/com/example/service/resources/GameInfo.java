@@ -59,12 +59,15 @@ public class GameInfo{
     public static Uri uri;
     public static Context uri_context;
 
-    public static final String START_NAME = "";
     private static final String TAG = "MyDebug";
+    public static final String SERVICE_NAME = "OVerbinService_";
+    public static final String SERVICE_TYPE = "_overbin._tcp.";
     static final String ENTER = "{";
     public static final String SEP = "#";
     public static GameInfo game=null;
     private static String[] loose_cond,win_cond;
+
+//    public boolean game_started = false;
 
     public long start_time, current_time, round_length;
 
@@ -88,6 +91,7 @@ public class GameInfo{
 
     public ViewPager main_pager;
     public String hostAdr;
+    public Integer hostPort;
     public int leader_id;
     public int width;
     public int height;
@@ -304,11 +308,9 @@ public class GameInfo{
     public void init(String scenarioPath) throws IOException {
         clear();
 
-        System.out.println("11111111111111111111111111111111111111");
         File check_file = new File(Environment.getExternalStorageDirectory(), scenarioPath);
         if (check_file.exists()) this.scenarioPath = check_file.getAbsolutePath();
         else this.scenarioPath = scenarioPath;
-        System.out.println("22222222222222222222222222222222222222");
 
         File scenarioFile = new File(this.scenarioPath);
         File scenarioFile2 = scenarioFile;
@@ -318,10 +320,6 @@ public class GameInfo{
             scenarioFile2 = new File(scenarioPath.substring(0,scenarioPath.lastIndexOf('/')+1)+filename+"/"+filename+".rp");
 
         }
-
-        System.out.println("333333333333333333333333333333333333");
-
-
 
         System.out.println(scenarioFile.getAbsolutePath() + " " + scenarioFile.exists());
         System.out.println(scenarioFile2.getAbsolutePath() + " " + scenarioFile2.exists());
@@ -334,7 +332,6 @@ public class GameInfo{
 
         BufferedReader br = new BufferedReader(new FileReader(
                 scenarioFile));
-        System.out.println("444444444444444444444444444444");
 
         try {
             String line;
@@ -513,6 +510,7 @@ public class GameInfo{
                     @Override
                     public void run() {
                         Intent intent = new Intent(game.main_context, GameStart.class);
+//                        game.game_started = true;
                         game.main_context.startActivity(intent);
                     }
                 });

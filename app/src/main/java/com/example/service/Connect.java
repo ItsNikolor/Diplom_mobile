@@ -28,6 +28,7 @@ import android.widget.Toast;
 import com.example.service.listViewAdapters.PairListAdapter;
 import com.example.service.resources.GameInfo;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,13 +37,13 @@ import java.util.Map;
 @SuppressWarnings("SpellCheckingInspection")
 public class Connect extends AppCompatActivity {
     private static final String TAG = "MyDebug";
-    private static final String SERVICE_TYPE = "_nsdchat._tcp.";
     volatile static boolean wifi = true;
 
     private HandlerThread handlerThread;
 
     List<Pair<String,String>> currentRooms = new ArrayList<>();
     List<String> currentAdrs = new ArrayList<String>();
+    List<Integer> currentPorts = new ArrayList<Integer>();
 
     ListView listView;;
     PairListAdapter deviceAdapter;
@@ -66,10 +67,17 @@ public class Connect extends AppCompatActivity {
                 Log.d(TAG, "Same IP.");
                 return;
             }
-//            int port = serviceInfo.getPort();
+            int port = serviceInfo.getPort();
             InetAddress host = serviceInfo.getHost();
-            String name = serviceInfo.getServiceName();
+            String servise_name = serviceInfo.getServiceName();
+            servise_name = servise_name.substring(GameInfo.game.SERVICE_NAME.length());
+
+            String name = servise_name.split(GameInfo.SEP)[0];
+
+
+
             String ip = host.getHostAddress();
+
 
             boolean has = false;
             for (String s: currentAdrs){
@@ -78,9 +86,16 @@ public class Connect extends AppCompatActivity {
             }
             if (!has) {
                 currentAdrs.add(ip);
-                currentRooms.add(new Pair<>(name,""));
+                currentPorts.add(port);
+                currentRooms.add(new Pair<>(servise_name.split(GameInfo.SEP)[0],servise_name.split(GameInfo.SEP)[1]));
 
-                deviceAdapter.notifyDataSetChanged();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        deviceAdapter.notifyDataSetChanged();
+                    }
+                });
+
             }
         }
     }
@@ -100,15 +115,21 @@ public class Connect extends AppCompatActivity {
                 Log.d(TAG, "Same IP.");
                 return;
             }
-//            int port = serviceInfo.getPort();
             InetAddress host = serviceInfo.getHost();
             String ip = host.getHostAddress();
 
             for(int i=0;i<currentAdrs.size();i++){
                 if(ip.equals(currentAdrs.get(i))){
                     currentAdrs.remove(i);
+                    currentPorts.remove(i);
                     currentRooms.remove(i);
-                    deviceAdapter.notifyDataSetChanged();
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            deviceAdapter.notifyDataSetChanged();
+                        }
+                    });
                     break;
                 }
             }
@@ -116,7 +137,6 @@ public class Connect extends AppCompatActivity {
     }
 
     public void initializeDiscoveryListener() {
-
         // Instantiate a new DiscoveryListener
         discoveryListener = new NsdManager.DiscoveryListener() {
 
@@ -130,7 +150,7 @@ public class Connect extends AppCompatActivity {
             public void onServiceFound(NsdServiceInfo service) {
                 // A service was found! Do something with it.
                 Log.d(TAG, "Service discovery success " + service);
-                if (!service.getServiceType().equals(SERVICE_TYPE)) {
+                if (!service.getServiceType().equals(GameInfo.game.SERVICE_TYPE)) {
                     // Service type is the string containing the protocol and
                     // transport layer for this service.
                     Log.d(TAG, "Unknown Service Type: " + service.getServiceType());
@@ -138,7 +158,8 @@ public class Connect extends AppCompatActivity {
                     // The name of the service tells the user what they'd be
                     // connecting to. It could be "Bob's Chat App".
                     Log.d(TAG, "Same machine: " + serviceName);
-                } else if (service.getServiceName().contains("NsdChat")){
+                } else if (service.getServiceName().contains(GameInfo.game.SERVICE_NAME)){
+                    Log.d(TAG, "Resolving service: " + service);
                     nsdManager.resolveService(service, new MyResolveListener());
                 }
             }
@@ -176,13 +197,6 @@ public class Connect extends AppCompatActivity {
         setContentView(R.layout.activity_connect);
         System.out.println(TAG + ":  " + "onCreate: Connect");
 
-
-        nsdManager = (NsdManager) getApplicationContext().getSystemService(Context.NSD_SERVICE);
-        initializeDiscoveryListener();
-
-        nsdManager.discoverServices(
-                SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, discoveryListener);
-
         deviceAdapter = new PairListAdapter(this,R.layout.adapter_view_pair,currentRooms);
 
         listView = findViewById(R.id.availableRooms);
@@ -202,6 +216,7 @@ public class Connect extends AppCompatActivity {
 
                 Intent intent = new Intent(getApplicationContext(),WaitingMenuClient.class);
                 GameInfo.game.hostAdr = currentAdrs.get(position);
+                GameInfo.game.hostPort = currentPorts.get(position);
                 GameInfo.game.isConnecting = false;
                 GameInfo.game.clear();
                 startActivity(intent);
@@ -215,70 +230,13 @@ public class Connect extends AppCompatActivity {
 //                refresh();
             }
         });
+
+        nsdManager = (NsdManager) getApplicationContext().getSystemService(Context.NSD_SERVICE);
+        initializeDiscoveryListener();
+
+        nsdManager.discoverServices(
+                GameInfo.SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, discoveryListener);
     }
-
-//    @SuppressLint("MissingPermission")
-//    private void connect(WifiP2pManager.Channel channel, WifiP2pConfig config) {
-//        manager.connect(channel, config, new WifiP2pManager.ActionListener() {
-//            @Override
-//            public void onSuccess() {
-//                System.out.println(TAG + ":  " + "onSuccess: Connect");
-//            }
-//
-//            @Override
-//            public void onFailure(int reason) {
-//                System.out.println(TAG + ":  " + "onFailure: Connect  " + reason);
-//            }
-//        });
-//    }
-
-
-//    @SuppressLint("MissingPermission")
-//    public static void disconnect(WifiP2pManager manager, WifiP2pManager.Channel channel) {
-//        if (manager != null && channel != null) {
-//            manager.requestGroupInfo(channel, new WifiP2pManager.GroupInfoListener() {
-//                @Override
-//                public void onGroupInfoAvailable(WifiP2pGroup group) {
-//                    if (group != null && manager != null && channel != null) {
-//                        manager.removeGroup(channel, new WifiP2pManager.ActionListener() {
-//                            @Override
-//                            public void onSuccess() {
-//                                System.out.println(TAG +":  "+ "removeGroup onSuccess");
-//                            }
-//
-//                            @Override
-//                            public void onFailure(int reason) {
-//                                System.out.println(TAG +":  "+ "removeGroup onFailure " + reason);
-//                            }
-//                        });
-//                    }
-//                }
-//            });
-//        }
-//        else {
-//            System.out.println(TAG +":  "+ "WTFFFF");
-//        }
-//    }
-
-//    static Runnable runnableDiscover(WifiP2pManager manager, WifiP2pManager.Channel channel, Handler handler, int delay){
-//        return new Runnable() {
-//            @SuppressLint("MissingPermission")
-//            @Override
-//            public void run() {
-//                manager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
-//                            @Override
-//                            public void onSuccess() {
-//                                handler.postDelayed(Connect.runnableDiscover(manager, channel, handler, delay), delay);
-//                            }
-//
-//                            @Override
-//                            public void onFailure(int reason) {
-//                                handler.postDelayed(Connect.runnableDiscover(manager, channel, handler, delay), delay);
-//                            }
-//                        });
-//            }
-//        };
-//    };
 
     private void refresh() {
 //        GameInfo.game.isConnecting = true;
@@ -294,57 +252,17 @@ public class Connect extends AppCompatActivity {
 //        discoverService();
     }
 
-    private void discoverService() {
-//        handlerThread = new HandlerThread("");
-//        handlerThread.start();
-//
-//        Handler handler = new Handler(handlerThread.getLooper());
-//        handler.post(runnableDiscover(manager,channel,handler,10000));
-    }
 
-    private void stopDiscoverService() {
-//        handlerThread.quit();
-    }
-
-    @SuppressLint("MissingPermission")
     @Override
     public void onResume() {
         super.onResume();
         GameInfo.game.isConnecting = true;
-
-//        manager.requestGroupInfo(channel, new WifiP2pManager.GroupInfoListener() {
-//            @Override
-//            public void onGroupInfoAvailable(WifiP2pGroup group) {
-//                if (group != null && manager != null && channel != null) {
-//                    manager.removeGroup(channel, new WifiP2pManager.ActionListener() {
-//                        @Override
-//                        public void onSuccess() {
-//                            System.out.println(TAG +":  "+ "removeGroup onSuccess");
-//
-////                            registerReceiver(receiver, MainActivity.intentFilter);
-//                            discoverService();
-//                        }
-//
-//                        @Override
-//                        public void onFailure(int reason) {
-//                            System.out.println(TAG +":  "+ "removeGroup onFailure " + reason);
-//                        }
-//                    });
-//                }
-//                else{
-////                    registerReceiver(receiver, MainActivity.intentFilter);
-//                    discoverService();
-//
-//                }
-//            }
-//        });
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-
-//        stopDiscoverService();
-//        unregisterReceiver(receiver);
+    public void onDestroy() {
+        super.onDestroy();
+        System.out.println("On Destroy");
+        nsdManager.stopServiceDiscovery(discoveryListener);
     }
 }

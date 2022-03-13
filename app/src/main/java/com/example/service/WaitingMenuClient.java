@@ -84,6 +84,7 @@ public class WaitingMenuClient extends AppCompatActivity {
         setContentView(R.layout.activity_waiting_menu);
         GameInfo.game.main_context = this;
 
+//        GameInfo.game.game_started = false;
         findViewById(R.id.start_game).setVisibility(View.GONE);
 
         scenario_name = findViewById(R.id.scenario_name);
@@ -123,7 +124,7 @@ public class WaitingMenuClient extends AppCompatActivity {
                 WaitingMenuClient.socket = socket;
                 try {
                     socket.bind(null);
-                    socket.connect((new InetSocketAddress(GameInfo.game.hostAdr, 8888)), 500);
+                    socket.connect((new InetSocketAddress(GameInfo.game.hostAdr, GameInfo.game.hostPort)), 500);
                     GameInfo.game.outHandlers.add(new OutHandlerThread(socket));
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -137,7 +138,7 @@ public class WaitingMenuClient extends AppCompatActivity {
                     try {
                         System.out.println("Client reconnect");
                         socket.bind(null);
-                        socket.connect((new InetSocketAddress(GameInfo.game.hostAdr, 8888)), 500);
+                        socket.connect((new InetSocketAddress(GameInfo.game.hostAdr, GameInfo.game.hostPort)), 500);
                         GameInfo.game.outHandlers.add(new OutHandlerThread(socket));
                     } catch (IOException ioException) {
                         ioException.printStackTrace();
@@ -203,4 +204,13 @@ public class WaitingMenuClient extends AppCompatActivity {
             }
         });
     }
+
+//    @Override
+//    public void onDestroy() {
+//        super.onDestroy();
+//        System.out.println("On Destroy");
+//        if (!GameInfo.game.game_started){
+//
+//        }
+//    }
 }

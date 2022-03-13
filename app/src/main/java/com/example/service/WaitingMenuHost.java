@@ -105,8 +105,8 @@ public class WaitingMenuHost extends AppCompatActivity {
 
         // The name is subject to change based on conflicts
         // with other services advertised on the same network.
-        serviceInfo.setServiceName("NsdChat_" + name);
-        serviceInfo.setServiceType("_nsdchat._tcp");
+        serviceInfo.setServiceName(GameInfo.game.SERVICE_NAME + name);
+        serviceInfo.setServiceType(GameInfo.game.SERVICE_TYPE);
         serviceInfo.setPort(port);
 
         nsdManager = (NsdManager) getApplicationContext().getSystemService(Context.NSD_SERVICE);
@@ -129,7 +129,13 @@ public class WaitingMenuHost extends AppCompatActivity {
         players_adapter = new PairListAdapter(this,R.layout.adapter_view_pair,new ArrayList<>());
         l.setAdapter(players_adapter);
 
-        registerService(GameInfo.START_NAME+GameInfo.game.roomName, 8888);
+        if (acceptThread == null) {
+            acceptThread = new HandlerThread("");
+            acceptThread.start();
+
+            Handler handler = new Handler(acceptThread.getLooper());
+            handler.post(accept());
+        }
 
         String roomName = GameInfo.game.roomName;
         String scenarioName = GameInfo.game.scenarioName;
@@ -140,15 +146,6 @@ public class WaitingMenuHost extends AppCompatActivity {
         GameInfo.game.clients.add(new Client(0,"Без имени",Role.host_role.id));
         GameInfo.game.outHandlers.add(new OutHandlerThread());
         add_client();
-
-
-        if (acceptThread == null) {
-            acceptThread = new HandlerThread("");
-            acceptThread.start();
-
-            Handler handler = new Handler(acceptThread.getLooper());
-            handler.post(accept());
-        }
 
         Button snd_button = findViewById(R.id.send_player);
         snd_button.setOnClickListener(new View.OnClickListener() {
@@ -182,7 +179,10 @@ public class WaitingMenuHost extends AppCompatActivity {
             public void run() {
                 try {
                     System.out.println(TAG +":  "+ "In accept before listenter");
-                    listener = new ServerSocket(8888);
+                    listener = new ServerSocket(0);
+                    System.out.println(TAG +":  "+ "Listening port " + listener.getLocalPort());
+
+                    registerService(GameInfo.game.roomName+GameInfo.game.SEP+GameInfo.game.scenarioName+" ", listener.getLocalPort());
 
                     System.out.println(TAG +":  "+ "In accept after listenter");
 
@@ -194,7 +194,6 @@ public class WaitingMenuHost extends AppCompatActivity {
                         GameInfo.game.add_client(client);
                     }
                 } catch (IOException e) {
-                    //e.printStackTrace();
                     System.out.println(TAG +":  "+ "listener ded");
                 }
                 finally {
@@ -205,18 +204,6 @@ public class WaitingMenuHost extends AppCompatActivity {
         };
     }
 
-//    protected void startRegistration() {
-//        handlerThread = new HandlerThread("");
-//        handlerThread.start();
-//
-//        Handler handler = new Handler(handlerThread.getLooper());
-//        handler.post(Connect.runnableDiscover(manager,channel,handler,10000));
-//    }
-//    private void stopRegistration() {
-//        handlerThread.quit();
-//    }
-
-    @SuppressLint("MissingPermission")
     @Override
     public void onResume() {
         super.onResume();
