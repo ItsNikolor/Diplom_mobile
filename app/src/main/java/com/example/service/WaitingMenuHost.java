@@ -12,6 +12,7 @@ import android.os.HandlerThread;
 import android.util.Log;
 import android.util.Pair;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -118,8 +119,8 @@ public class WaitingMenuHost extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_waiting_menu);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         findViewById(R.id.spinner).setVisibility(View.GONE);
         findViewById(R.id.role_descr).setVisibility(View.GONE);

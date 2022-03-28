@@ -580,11 +580,25 @@ public class GameInfo{
             case "log_journal":
                 while(!GameStart.alive);
                 while(!FragmentVar.alive);
-                SystemClock.sleep(200);
 
-                if(game.log_journal_sep.equals(""))
-                    game.log_journal_sep = ((FragmentVar)GameStart.fragments.get(1)).sep();
-                GameInfo.game.log_journal += l[1]+'\n'+game.log_journal_sep+'\n';
+                String[] finalL2 = l;
+                game.mainHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        GameStart.fragments.get(1).onResume();
+
+                        if(game.log_journal_sep.equals(""))
+                            game.log_journal_sep = ((FragmentVar)GameStart.fragments.get(1)).sep();
+                        GameInfo.game.log_journal += finalL2[1]+'\n'+game.log_journal_sep+'\n';
+                    }
+                });
+
+//                SystemClock.sleep(200);
+
+//                if(game.log_journal_sep.equals(""))
+//                    game.log_journal_sep = ((FragmentVar)GameStart.fragments.get(1)).sep();
+//                GameInfo.game.log_journal += l[1]+'\n'+game.log_journal_sep+'\n';
                 return;
             case "-available":
                 game.roles.get(l[1].split("_")[0]).actions.get(l[1]).can_use = Boolean.parseBoolean(l[2]);
@@ -640,6 +654,9 @@ public class GameInfo{
                 game.additional_actions.remove(l[1]);
                 return;
             case "confirm":
+                while(!GameStart.alive);
+                while(!FragmentVar.alive);
+
                 game.cur_action = l[1];
                 game.mainHandler.post(new Runnable() {
                     @Override
@@ -654,6 +671,9 @@ public class GameInfo{
                     game.outHandlers.get(game.leader_id).print("-ka" + SEP + id);
                 }
                 else {
+                    while(!GameStart.alive);
+                    while(!FragmentVar.alive);
+
                     game.cur_action = "";
                     game.mainHandler.post(new Runnable() {
                         @Override

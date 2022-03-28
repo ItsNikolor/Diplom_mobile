@@ -1,10 +1,16 @@
 package com.example.service;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.util.AttributeSet;
+import android.view.View;
+import android.view.WindowManager;
 
 import com.example.service.pageView.FragmentAction;
 import com.example.service.pageView.FragmentTab;
@@ -26,7 +32,9 @@ public class GameStart extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game_start);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         System.out.println(TAG +":  "+ "game start");
+        System.out.println(TAG +":  "+ "GameStart onCreate");
 
         ViewPager pager = (ViewPager) findViewById(R.id.game_pager);
         GameInfo.game.main_pager = pager;
@@ -46,11 +54,19 @@ public class GameStart extends AppCompatActivity {
         System.out.println(TAG +":  "+ "game start in end");
 
         alive = true;
-        FragmentVar.alive = false;
+//        FragmentVar.alive = false;
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull String name, @NonNull Context context, @NonNull AttributeSet attrs) {
+        System.out.println(TAG +":  "+ "GameStart onCreateView");
+        return super.onCreateView(name, context, attrs);
     }
 
     @Override
     protected void onDestroy() {
+        System.out.println(TAG +":  "+ "GameStart onDestroy");
         super.onDestroy();
         alive = false;
     }

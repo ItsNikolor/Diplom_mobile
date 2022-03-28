@@ -20,6 +20,7 @@ import android.os.HandlerThread;
 import android.util.Log;
 import android.util.Pair;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
@@ -195,6 +196,7 @@ public class Connect extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_connect);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         System.out.println(TAG + ":  " + "onCreate: Connect");
 
         deviceAdapter = new PairListAdapter(this,R.layout.adapter_view_pair,currentRooms);

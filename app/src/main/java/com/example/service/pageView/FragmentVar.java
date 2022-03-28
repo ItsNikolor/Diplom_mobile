@@ -34,12 +34,14 @@ public class FragmentVar extends Fragment {
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
+        System.out.println("MyDebug" +":  "+ "onCreate FragmentVar");
         super.onCreate(savedInstanceState);
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        System.out.println("MyDebug" +":  "+ "onCreateView FragmentVar");
         return inflater.inflate(R.layout.fragment_vars, container, false);
     }
 
@@ -126,6 +128,7 @@ public class FragmentVar extends Fragment {
 
     @Override
     public void onResume() {
+        System.out.println("MyDebug" +":  "+ "onResume FragmentVar");
         super.onResume();
 
         if(!alive) return;
@@ -161,6 +164,12 @@ public class FragmentVar extends Fragment {
         seconds = seconds % 60;
 
         timerTextView.setText("Время до следующего раунда " + String.format("%d:%02d", minutes, seconds));
+    }
+
+    @Override
+    public void onDestroy() {
+        System.out.println("MyDebug" +":  "+ "onDestroy FragmentVar");
+        super.onDestroy();
     }
 
     @Override

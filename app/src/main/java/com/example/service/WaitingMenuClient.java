@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Pair;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -82,6 +83,7 @@ public class WaitingMenuClient extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_waiting_menu);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         GameInfo.game.main_context = this;
 
 //        GameInfo.game.game_started = false;
@@ -128,29 +130,14 @@ public class WaitingMenuClient extends AppCompatActivity {
                     GameInfo.game.outHandlers.add(new OutHandlerThread(socket));
                 } catch (IOException e) {
                     e.printStackTrace();
-                    Handler handler = new Handler();
-                    handler.postDelayed(new Runnable() {
+                    GameInfo.game.mainHandler.post(new Runnable() {
                         @Override
                         public void run() {
-                            return;
+                            Intent intent = new Intent(WaitingMenuClient.this, Connect.class);
+                            startActivity(intent);
                         }
-                    },150);
-                    try {
-                        System.out.println("Client reconnect");
-                        socket.bind(null);
-                        socket.connect((new InetSocketAddress(GameInfo.game.hostAdr, GameInfo.game.hostPort)), 500);
-                        GameInfo.game.outHandlers.add(new OutHandlerThread(socket));
-                    } catch (IOException ioException) {
-                        ioException.printStackTrace();
-                        GameInfo.game.mainHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                Intent intent = new Intent(WaitingMenuClient.this,Connect.class);
-                                startActivity(intent);
-                            }
-                        });
-                        return;
-                    }
+                    });
+                    return;
                 }
 
                 Thread inThread = new Thread(new Runnable() {
