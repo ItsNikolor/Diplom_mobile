@@ -35,7 +35,7 @@ public class WaitingMenuClient extends AppCompatActivity {
     static public List<String> role_names = new ArrayList<>(),
             role_descr = new ArrayList<>(),
             role_ids = new ArrayList<>();
-    private static Socket socket;
+    static Socket socket;
 
     public static void add_role(Role r) {
         GameInfo.game.mainHandler.post(new Runnable() {
@@ -166,6 +166,8 @@ public class WaitingMenuClient extends AppCompatActivity {
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
+                            WaitingMenuClient.socket = null;
+
                             GameInfo.game.mainHandler.post(new Runnable() {
                                 @Override
                                 public void run() {

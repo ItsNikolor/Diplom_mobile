@@ -734,7 +734,7 @@ public class GameInfo{
 
         outHandlers.get(id).print("-n"+SEP+game.scenarioName);
         for (Role r:roles.values()) if(!r.id.equals(Role.host_role.id)) outHandlers.get(id).print(r.toString());
-        for (Client c: clients) outHandlers.get(id).print(c.toString());
+        for (Client c: clients) if (c.alive) outHandlers.get(id).print(c.toString());
         print_all(clients.get(id).toString());
 
         Thread inThread = new Thread(new Runnable() {

@@ -128,6 +128,12 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         if(checkPerm()) handler.removeCallbacksAndMessages(null);
 
+        try{
+            if (WaitingMenuClient.socket!=null)
+                WaitingMenuClient.socket.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 

@@ -259,6 +259,13 @@ public class Connect extends AppCompatActivity {
     public void onResume() {
         super.onResume();
         GameInfo.game.isConnecting = true;
+
+        try{
+            if (WaitingMenuClient.socket != null)
+                WaitingMenuClient.socket.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
