@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.SystemClock;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Pair;
@@ -577,6 +578,10 @@ public class GameInfo{
                 win_cond = empty_split(l[1]," ");
                 return;
             case "log_journal":
+                while(!GameStart.alive);
+                while(!FragmentVar.alive);
+                SystemClock.sleep(200);
+
                 if(game.log_journal_sep.equals(""))
                     game.log_journal_sep = ((FragmentVar)GameStart.fragments.get(1)).sep();
                 GameInfo.game.log_journal += l[1]+'\n'+game.log_journal_sep+'\n';

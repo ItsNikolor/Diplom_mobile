@@ -29,7 +29,7 @@ public class FragmentVar extends Fragment {
     private VarListAdapter deviceAdapter;
     private TextView log;
     private static TextView timerTextView;
-    private static boolean alive = false;
+    public static boolean alive = false;
     private TextView last_action;
 
     @Override
@@ -45,12 +45,14 @@ public class FragmentVar extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        System.out.println("MyDebug" +":  "+ "onViewCreated FragmentVar");
         deviceAdapter = new VarListAdapter(view.getContext(), R.layout.adapter_view_var, new ArrayList<>());
 
         ListView listView = view.findViewById(R.id.list_var);
         listView.setAdapter(deviceAdapter);
 
         log = (TextView) view.findViewById(R.id.log_journal);
+//        log.setText("Logs");
         log.setMovementMethod(new ScrollingMovementMethod());
 
         timerTextView = view.findViewById(R.id.round_time);
@@ -165,5 +167,6 @@ public class FragmentVar extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         alive = false;
+        System.out.println("MyDebug" +":  "+ "onDestroyView FragmentVar");
     }
 }

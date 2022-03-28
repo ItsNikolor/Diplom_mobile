@@ -20,6 +20,7 @@ public class GameStart extends AppCompatActivity {
     private static final String TAG = "MyDebug";
 
     public static ArrayList<Fragment> fragments = new ArrayList<>();
+    public static boolean alive = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,5 +44,14 @@ public class GameStart extends AppCompatActivity {
         pager.setCurrentItem(2);
         pager.setCurrentItem(1);
         System.out.println(TAG +":  "+ "game start in end");
+
+        alive = true;
+        FragmentVar.alive = false;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        alive = false;
     }
 }
