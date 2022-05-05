@@ -222,6 +222,7 @@ public class Connect extends AppCompatActivity {
                 GameInfo.game.isConnecting = false;
                 GameInfo.game.clear();
                 startActivity(intent);
+                finish();
             }
         });
 
@@ -239,6 +240,8 @@ public class Connect extends AppCompatActivity {
         nsdManager.discoverServices(
                 GameInfo.SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, discoveryListener);
     }
+
+
 
     private void refresh() {
 //        GameInfo.game.isConnecting = true;
@@ -259,13 +262,6 @@ public class Connect extends AppCompatActivity {
     public void onResume() {
         super.onResume();
         GameInfo.game.isConnecting = true;
-
-        try{
-            if (WaitingMenuClient.socket != null)
-                WaitingMenuClient.socket.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
@@ -273,5 +269,13 @@ public class Connect extends AppCompatActivity {
         super.onDestroy();
         System.out.println("On Destroy");
         nsdManager.stopServiceDiscovery(discoveryListener);
+    }
+
+    @Override
+    public void onBackPressed() {
+        System.out.println("Back pressed !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        Intent intent = new Intent(this,MainActivity.class);
+        startActivity(intent);
+        finish();
     }
 }

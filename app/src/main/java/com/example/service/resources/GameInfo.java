@@ -304,6 +304,8 @@ public class GameInfo{
         outHandlers = new ArrayList<>(256);
 
         log_journal = "";
+
+        game_ended = false;
     }
 
     public void init(String scenarioPath) throws IOException {
@@ -725,6 +727,8 @@ public class GameInfo{
         }
     }
 
+
+
     public void add_client(Socket client) throws IOException {
         final int id = clients.size();
         clients.add(new Client(id,"Без имени",Role.no_role.id,client));
@@ -765,6 +769,17 @@ public class GameInfo{
             }
         });
         inThread.start();
+    }
+
+    public void remove_clients(){
+        if (clients == null) return;
+        for (Client c: clients) if (c.alive && c.socket!=null) {
+            try {
+                c.socket.close();
+            } catch (IOException e) {
+                System.out.println("Cant close client socket");
+            }
+        }
     }
 
     public void start_game(Context context) throws IOException {

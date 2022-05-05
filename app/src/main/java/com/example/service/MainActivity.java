@@ -142,4 +142,9 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
         handler.removeCallbacksAndMessages(null);
     }
+
+    @Override
+    public void onBackPressed() {
+        System.out.println("Back pressed !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+    }
 }

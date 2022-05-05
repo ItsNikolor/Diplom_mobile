@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.AttributeSet;
 import android.view.View;
@@ -69,5 +70,10 @@ public class GameStart extends AppCompatActivity {
         System.out.println(TAG +":  "+ "GameStart onDestroy");
         super.onDestroy();
         alive = false;
+    }
+
+    @Override
+    public void onBackPressed() {
+        System.out.println("Back pressed !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
     }
 }

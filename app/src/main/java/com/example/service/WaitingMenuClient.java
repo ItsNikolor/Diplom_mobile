@@ -194,12 +194,19 @@ public class WaitingMenuClient extends AppCompatActivity {
         });
     }
 
-//    @Override
-//    public void onDestroy() {
-//        super.onDestroy();
-//        System.out.println("On Destroy");
-//        if (!GameInfo.game.game_started){
-//
-//        }
-//    }
+    @Override
+    public void onBackPressed() {
+        System.out.println("Back pressed !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+
+        try{
+            if (WaitingMenuClient.socket != null)
+                WaitingMenuClient.socket.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        Intent intent = new Intent(this,Connect.class);
+        startActivity(intent);
+        finish();
+    }
 }

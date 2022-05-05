@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
 import android.os.Bundle;
@@ -144,6 +145,9 @@ public class WaitingMenuHost extends AppCompatActivity {
         ((TextView)findViewById(R.id.room_name)).setText(roomName);
         ((TextView)findViewById(R.id.scenario_name)).setText(scenarioName);
 
+//        GameInfo.game.remove_clients();
+        GameInfo.game.clients.clear();
+
         GameInfo.game.clients.add(new Client(0,"Без имени",Role.host_role.id));
         GameInfo.game.outHandlers.add(new OutHandlerThread());
         add_client();
@@ -226,7 +230,16 @@ public class WaitingMenuHost extends AppCompatActivity {
         try {
             listener.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Cant close listener socket");
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        System.out.println("Back pressed !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        GameInfo.game.remove_clients();
+        Intent intent = new Intent(this,Create.class);
+        startActivity(intent);
+        finish();
     }
 }

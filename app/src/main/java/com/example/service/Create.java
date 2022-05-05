@@ -77,4 +77,17 @@ public class Create extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        System.out.println("On Resume");
+//        GameInfo.game.remove_clients();
+    }
+
+    @Override
+    public void onBackPressed() {
+        System.out.println("Back pressed !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        Intent intent = new Intent(this,MainActivity.class);
+        startActivity(intent);
+    }
 }
