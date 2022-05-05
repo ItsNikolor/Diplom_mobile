@@ -569,7 +569,8 @@ public class GameInfo{
                         bmp));
                 return;
             case "start_time":
-                game.start_time = Long.parseLong(l[1]);
+//                game.start_time = Long.parseLong(l[1]);
+                game.start_time = System.currentTimeMillis();
                 game.round_length = Long.parseLong(l[2]);
                 game.start_timer();
                 return;
