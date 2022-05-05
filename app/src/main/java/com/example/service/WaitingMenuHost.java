@@ -168,6 +168,7 @@ public class WaitingMenuHost extends AppCompatActivity {
             public void onClick(View v) {
                 try {
                     GameInfo.game.start_game(v.getContext());
+                    finish();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
